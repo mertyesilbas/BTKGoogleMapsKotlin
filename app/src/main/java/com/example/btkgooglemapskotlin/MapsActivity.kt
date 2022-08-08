@@ -46,6 +46,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setOnMapLongClickListener(dinleyici)
 
         // Latitude : Enlem // Longitude: Boylam
         // 50. yıl parkı 39.923749266541755, 32.87619097187372
@@ -110,5 +111,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    val dinleyici = object : GoogleMap.OnMapLongClickListener {
+        override fun onMapLongClick(p0: LatLng) {
+            mMap.clear()
+
+            val geocoder = Geocoder(this@MapsActivity,Locale.getDefault())
+
+            if (p0 != null){
+                var address = ""
+                try {
+                    val adresListesi = geocoder.getFromLocation(p0.latitude,p0.longitude,1)
+                    if (adresListesi.size > 0){
+                        if (adresListesi.get(0).thoroughfare != null){
+                            address += adresListesi.get(0).thoroughfare
+                            if (adresListesi.get(0).subThoroughfare != null){
+                                address += adresListesi.get(0).subThoroughfare
+                            }
+                        }
+
+                    }
+                } catch (e: Exception){
+                    e.printStackTrace()
+                }
+
+                mMap.addMarker(MarkerOptions().position(p0).title(address))
+            }
+        }
+
     }
 }
